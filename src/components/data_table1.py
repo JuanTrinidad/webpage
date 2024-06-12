@@ -1,4 +1,4 @@
-from dash import Dash, dash_table, Input, Output, callback, html
+from dash import Dash, dash_table, Input, Output, html
 from . import ids
 from ..data.loader import DataSchema
 import pandas as pd
@@ -11,7 +11,7 @@ def render(app:Dash, data: pd.DataFrame ) -> html.Div:
     table = dash_table.DataTable(
                 id=ids.TABLE1,
                 columns=[{"name": i, "id": i} for i in data.columns],
-                data=data.to_dict('records'), 
+                data=[], 
                 page_size=50,
                 style_data_conditional=[
             {
@@ -28,7 +28,7 @@ def render(app:Dash, data: pd.DataFrame ) -> html.Div:
     )
     
     # funcion que corre cuando se modifica el input, actualizando la tabla
-    def update_table(value):
+    def update_table(value: str):
         # filtro por geneID y me quedo con la estructura representante
         clusterID = data[data[DataSchema.GENEID] == value][DataSchema.CLUSTERESTRUCTURE].unique()
         #filtro el df para  ver el cluster completo

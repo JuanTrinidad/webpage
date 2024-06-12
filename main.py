@@ -7,6 +7,7 @@ from src.data.loader2 import load_annotation_data2
 
 
 
+
 DATA_PATH = "./data/tables/webpage_Table1.tsv"
 DATA_PATH2 = "./data/tables/webpage_Table2.tsv"
 

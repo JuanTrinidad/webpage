@@ -6,6 +6,7 @@ import pandas as pd
 
 
 
+
 def create_layout(app: Dash, data: pd.DataFrame, data2: pd.DataFrame) -> html.Div:
     return html.Div(
         className="app-div",
@@ -22,11 +23,3 @@ def create_layout(app: Dash, data: pd.DataFrame, data2: pd.DataFrame) -> html.Di
     )
     
 
-
-'''
-            html.Div(
-                className="textbox",
-                children=[ input_geneID_text.render(app) ]   
-            ),
-
-'''

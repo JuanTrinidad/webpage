@@ -1,4 +1,4 @@
-from dash import Dash, dash_table, Input, Output, callback, html
+from dash import Dash, dash_table, Input, Output, html
 from . import ids
 from ..data.loader import DataSchema
 from ..data.loader2 import DataSchema2
@@ -12,7 +12,7 @@ def render(app:Dash, data: pd.DataFrame, data2: pd.DataFrame ) -> html.Div:
     table = dash_table.DataTable(
                 id=ids.TABLE2,
                 columns=[{"name": i, "id": i} for i in data2.columns],
-                data=data2.to_dict('records'), 
+                data=[], 
                 page_size=50,
                 style_data_conditional=[
             {
@@ -25,7 +25,7 @@ def render(app:Dash, data: pd.DataFrame, data2: pd.DataFrame ) -> html.Div:
     # Cada vez que se modifique el valor del input (textbox), se actualiza la tabla.
     @app.callback(
         Output(ids.TABLE2, 'data'),
-        Input(ids.TEXT_INPUT1, 'value')
+        Input(ids.TEXT_INPUT2, 'value')
     )
     
     # funcion que corre cuando se modifica el input, actualizando la tabla
@@ -36,7 +36,7 @@ def render(app:Dash, data: pd.DataFrame, data2: pd.DataFrame ) -> html.Div:
         #filtro el df para  ver el cluster completo
         filtered_data = data2[data2[DataSchema2.CRS_QUERY].isin(clusterID)]
         #lo ordeno para presentar.
-        filtered_data = filtered_data.sort_values(by=DataSchema2.SPP)
+        filtered_data = filtered_data.sort_values(by=[DataSchema2.FC_TMSCORE1, DataSchema2.FC_TMSCORE2], ascending=False)
         
         return filtered_data.to_dict('records')
     
