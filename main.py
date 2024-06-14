@@ -1,7 +1,7 @@
 
 from dash import Dash, html
 from dash_bootstrap_components.themes  import BOOTSTRAP
-from src.components.layout import create_layout
+from src.components.layout_Tables_full_data import create_layout
 from src.data.loader import load_annotation_data
 from src.data.loader2 import load_annotation_data2
 
