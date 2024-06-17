@@ -16,9 +16,6 @@ from src.data.loader2 import load_annotation_data2, DataSchema2
 from src.components import navigation_bar
 from src.components import ids
 
-#import data schemas
-#from data.loader import DataSchema
-#from data.loader2 import DataSchema2
 
 
 
@@ -35,8 +32,7 @@ def main() -> None:
     #load dataframes    
     data = load_annotation_data(DATA_PATH)
     data2 = load_annotation_data2(DATA_PATH2)
-
-
+    
 
 
     ###########################
@@ -47,7 +43,7 @@ def main() -> None:
     app.title = 'Kinetoplastid Structural Annotation Database'
 
     # define the layout of the app
-    content = page1_gene_summary_layout(app)
+    content = page1_gene_summary_layout(app, DataSchema.COLUMNS_TRITRYP, DataSchema.COLUMNS_UNIPROT, DataSchema2.COLUMNS_SRBH)
 
     app.layout =  html.Div([
                         dcc.Location(id='url', refresh=False),
@@ -64,14 +60,19 @@ def main() -> None:
     def display_page(pathname):
 
         if pathname == '/home':
-            return page1_gene_summary_layout(app)
+            return page1_gene_summary_layout(app, DataSchema.COLUMNS_TRITRYP, DataSchema.COLUMNS_UNIPROT, DataSchema2.COLUMNS_SRBH)
         
         elif pathname == '/dashboard':
-            return page2_data_tables_layout(app, data.columns, data2.columns)
+            return page2_data_tables_layout(app, DataSchema.COLUMNS_TABLE1, DataSchema2.COLUMNS_TABLE2)
         
         else:
             # Returning a 404 page if path is not found
             return '404 - Page not found'
+
+
+
+
+
 
 
     ######################################################################################
@@ -106,7 +107,7 @@ def main() -> None:
         #lo ordeno para presentar.
         filtered_data2 = filtered_data2.sort_values(by=[DataSchema2.FC_TMSCORE1, DataSchema2.FC_TMSCORE2], ascending=False)
 
-        return filtered_data.to_dict('records'), filtered_data2.to_dict('records')
+        return filtered_data[DataSchema.COLUMNS_TABLE1].to_dict('records'), filtered_data2[DataSchema2.COLUMNS_TABLE2].to_dict('records')
 
 
     

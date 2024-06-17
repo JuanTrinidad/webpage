@@ -7,13 +7,14 @@ from . import ids
 
 
 
-#PODRIA PASARLE DIRECTAMENTE DATA.COLUMNS
-def render(app:Dash, data_col: list[str], data2_col: list[str] ) -> html.Div:
+
+def render(app:Dash, TABLE1_cols: list[str], TABLE2_cols: list[str] ) -> html.Div:
+
     
     #generando la tabla en formato dash
     table0 = dash_table.DataTable(
                 id=ids.TABLE1,
-                columns=[{"name": i, "id": i} for i in data_col],
+                columns=[{"name": i, "id": i} for i in TABLE1_cols],
                 data=[], 
                 page_size=50,
                 style_data_conditional=[
@@ -21,13 +22,13 @@ def render(app:Dash, data_col: list[str], data2_col: list[str] ) -> html.Div:
                 'if': {'column_id': i},
                 'textOverflow': 'ellipsis',
                 'maxWidth': '150px',
-            } for i in data_col
+            } for i in TABLE1_cols
         ])
     
     #generando la tabla en formato dash
     table1 = dash_table.DataTable(
                 id=ids.TABLE2,
-                columns=[{"name": i, "id": i} for i in data2_col],
+                columns=[{"name": i, "id": i} for i in TABLE2_cols],
                 data=[], 
                 page_size=50,
                 style_data_conditional=[
@@ -35,7 +36,7 @@ def render(app:Dash, data_col: list[str], data2_col: list[str] ) -> html.Div:
                 'if': {'column_id': i},
                 'textOverflow': 'ellipsis',
                 'maxWidth': '150px',
-            } for i in data2_col
+            } for i in TABLE2_cols
         ])
     
     
