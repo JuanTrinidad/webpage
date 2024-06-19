@@ -8,49 +8,32 @@ from . import ids
 
 
 
-def render(app:Dash, TRITRYPS_cols:list[str], UNIPROT_cols:list[str], SRBH_cols: list[str]) -> html.Div:
+def render(app:Dash) -> html.Div:
+    columns = ['DataBase', 'Annotation']
     
     #generando la tabla en formato dash
     table_TRITRYPS = dash_table.DataTable(
                 id=ids.TABLE_ANNOTATION_TRITRYP,
-                columns=[{"name": i, "id": i} for i in TRITRYPS_cols],
+                columns=[{"name": i, "id": i} for i in columns],
                 data=[], 
-                page_size=50,
-                style_data_conditional=[
-            {
-                'if': {'column_id': i},
-                'textOverflow': 'ellipsis',
-                'maxWidth': '150px',
-            } for i in TRITRYPS_cols
-        ])
+                page_size=50
+                )
     
     #generando la tabla en formato dash
     table_UNIPROT = dash_table.DataTable(
                 id=ids.TABLE_ANNOTATION_UNIPROT,
-                columns=[{"name": i, "id": i} for i in UNIPROT_cols],
+                columns=[{"name": i, "id": i} for i in columns],
                 data=[], 
-                page_size=50,
-                style_data_conditional=[
-            {
-                'if': {'column_id': i},
-                'textOverflow': 'ellipsis',
-                'maxWidth': '150px',
-            } for i in UNIPROT_cols
-        ])   
+                page_size=50
+                )   
 
     #generando la tabla en formato dash
     table_SRBH = dash_table.DataTable(
                 id=ids.TABLE_ANNOTATION_SRBH,
-                columns=[{"name": i, "id": i} for i in SRBH_cols],
+                columns=[{"name": i, "id": i} for i in columns],
                 data=[], 
-                page_size=50,
-                style_data_conditional=[
-            {
-                'if': {'column_id': i},
-                'textOverflow': 'ellipsis',
-                'maxWidth': '150px',
-            } for i in SRBH_cols
-        ])   
+                page_size=50
+                )   
     
     
     return html.Div(

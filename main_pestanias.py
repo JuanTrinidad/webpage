@@ -2,6 +2,7 @@
 from dash import Dash, html, dcc
 from dash_bootstrap_components.themes  import BOOTSTRAP
 from dash.dependencies import Input, Output
+import pandas as pd
 
 #import pages
 from src.pages.page1_gene_summary import page1_gene_summary_layout
@@ -43,7 +44,7 @@ def main() -> None:
     app.title = 'Kinetoplastid Structural Annotation Database'
 
     # define the layout of the app
-    content = page1_gene_summary_layout(app, DataSchema.COLUMNS_TRITRYP, DataSchema.COLUMNS_UNIPROT, DataSchema2.COLUMNS_SRBH)
+    content = page1_gene_summary_layout(app)
 
     app.layout =  html.Div([
                         dcc.Location(id='url', refresh=False),
@@ -60,7 +61,7 @@ def main() -> None:
     def display_page(pathname):
 
         if pathname == '/home':
-            return page1_gene_summary_layout(app, DataSchema.COLUMNS_TRITRYP, DataSchema.COLUMNS_UNIPROT, DataSchema2.COLUMNS_SRBH)
+            return page1_gene_summary_layout(app)
         
         elif pathname == '/dashboard':
             return page2_data_tables_layout(app, DataSchema.COLUMNS_TABLE1, DataSchema2.COLUMNS_TABLE2)
@@ -68,8 +69,6 @@ def main() -> None:
         else:
             # Returning a 404 page if path is not found
             return '404 - Page not found'
-
-
 
 
 
@@ -110,13 +109,70 @@ def main() -> None:
         return filtered_data[DataSchema.COLUMNS_TABLE1].to_dict('records'), filtered_data2[DataSchema2.COLUMNS_TABLE2].to_dict('records')
 
 
+    @app.callback(
+        [Output(ids.TABLE_ANNOTATION_TRITRYP, 'data'),
+        Output(ids.TABLE_ANNOTATION_UNIPROT, 'data'),
+        Output(ids.TABLE_ANNOTATION_SRBH, 'data'),
+        Output(ids.TABLE_ANNOTATION_SRBH, 'columns')],
+        Input(ids.TEXT_INPUT1, 'value')
+    )
     
+    def update_tables_page1(value):
+        #empty df top return when no data is found
+        df_no_data = pd.DataFrame(columns=['DataBase', 'Annotation'], data=[['No data', 'No data']])
+        #filter the data
+        df_annotation = data[data[DataSchema.GENEID] == value]
+        #cluster ID
+        clusterID = data[data[DataSchema.GENEID] == value][DataSchema.CLUSTERESTRUCTURE].unique()
+        
+        if df_annotation.empty:
+            return df_no_data.to_dict('records'), df_no_data.to_dict('records'), df_no_data.to_dict('records'), [{'name': i, 'id': i} for i in df_no_data.columns]
+        
+        # Prepare the annotation DataFrame
+        df_annotation = df_annotation.T.reset_index()
+        df_annotation.columns= ['DataBase', 'Annotation']
+        
+        ## TRITRYPDB ANNOTATION ##
+        df_TriTryps = df_annotation[df_annotation['DataBase'].isin(DataSchema.COLUMNS_TRITRYP)].dropna()
+        ## UNIPROT ANNOTATION ##
+        df_UNIPROT = df_annotation[df_annotation['DataBase'].isin(DataSchema.COLUMNS_UNIPROT)].dropna()
+        ## SRBH ANNOTATION ## data2 filtering
+        df_SRBH = data2[data2[DataSchema2.CRS_QUERY].isin(clusterID)]
+        
+        if df_SRBH.empty:
+            df_SRBH = df_no_data
+        else:
+            df_SRBH = df_SRBH[DataSchema2.COLUMNS_SRBH]
+            df_SRBH =(df_SRBH
+                    .dropna(subset=[DataSchema2.FC_TMSCORE1, DataSchema2.FC_TMSCORE2])
+                    .sort_values(by=[DataSchema2.FC_TMSCORE1, DataSchema2.FC_TMSCORE2], ascending=False)
+                    )
+            df_SRBH = (df_SRBH
+                       .set_index(DataSchema2.SPP)
+                       .T
+                       .dropna(how='all')
+                       .reset_index()
+                       .rename(columns={'index': 'Specie'})
+                        )
+        
+        
+        ## SRBH ANNOTATION ##
+        #df_SRBH = df_annotation[df_annotation['DataBase'].isin(DataSchema.COLUMNS_TABLE1)]
+        
+        
+        if df_TriTryps.empty:
+            df_TriTryps = df_no_data
+        if df_UNIPROT.empty:
+            df_UNIPROT = df_no_data
+        
+        
+        return df_TriTryps.to_dict('records'), df_UNIPROT.to_dict('records'), df_SRBH.to_dict('records'), [{'name': i, 'id': i} for i in df_SRBH.columns]
+
+
+
     
     
     app.run(debug=True)
-
-
-
 
 
 

@@ -12,7 +12,7 @@ def render(app:Dash) -> dcc.Input:
         id=ids.TEXT_INPUT1, 
         type="text", 
         placeholder="Input geneID: ej. Tb927.10.13280",
-        #value='Tb927.10.13280',
+        #value='Tb927.3.1760',
         style={
         'borderRadius': '15px',  # Rounded corners
         'border': '1px solid #ccc',  # Subtle border
