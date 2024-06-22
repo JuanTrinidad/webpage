@@ -1,11 +1,12 @@
 from dash import Dash, dash_table, Input, Output, html
+import dash_bootstrap_components as dbc
 from . import ids
 from ..data.loader import DataSchema
 import pandas as pd
 
 
 
-def render(app:Dash, data: pd.DataFrame ) -> html.Div:
+def render(app:Dash, data: pd.DataFrame ) -> dbc.Container:
     
     #generando la tabla en formato dash
     table = dash_table.DataTable(
@@ -40,7 +41,7 @@ def render(app:Dash, data: pd.DataFrame ) -> html.Div:
     
 
     #devuelve header y tabla modificada
-    return html.Div(
+    return dbc.Container(
             className="table-container",
             children=[
                 html.H4('Cluster funtional annotation data (sequence based):'),

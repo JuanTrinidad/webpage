@@ -1,6 +1,8 @@
 
 from dash import Dash, html, dcc
-from dash_bootstrap_components.themes  import BOOTSTRAP
+import dash_bootstrap_components as dbc
+
+
 from dash.dependencies import Input, Output
 import pandas as pd
 
@@ -35,22 +37,42 @@ def main() -> None:
     data2 = load_annotation_data2(DATA_PATH2)
     
 
-
     ###########################
     # Initialize the Dash app #
     ###########################
-    app = Dash(__name__,  suppress_callback_exceptions=True, external_stylesheets=[BOOTSTRAP]) #suppress_callback_exceptions=True,
+    app = Dash(__name__,  
+               suppress_callback_exceptions=True, 
+               external_stylesheets=[dbc.themes.BOOTSTRAP],
+               meta_tags=[{'name': 'viewport',
+                            'content': 'width=device-width, initial-scale=1.0'}]) #suppress_callback_exceptions=True,
 
     app.title = 'Kinetoplastid Structural Annotation Database'
 
     # define the layout of the app
     content = page1_gene_summary_layout(app)
 
-    app.layout =  html.Div([
+    app.layout =  dbc.Container([
                         dcc.Location(id='url', refresh=False),
-                        navigation_bar.render(app),
-                        html.Div(id='page-content', children=[content])
+
+                        dbc.Row([
+                            dbc.Col([
+                            navigation_bar.render(app) 
+                            ], 
+                            width=12)
+                        ]),
+
+                        dbc.Row([
+                            dbc.Col([ 
+                                html.Div(
+                                id='page-content',
+                                children= [content]
+                                )
+                        ], 
+                        width={'size': 10, 'offset': 1})
                         ])
+                        ],
+                        fluid=True)
+ 
 
 
     # Callback to dynamically change the page content based on URL
@@ -154,10 +176,6 @@ def main() -> None:
                        .reset_index()
                        .rename(columns={'index': 'Specie'})
                         )
-        
-        
-        ## SRBH ANNOTATION ##
-        #df_SRBH = df_annotation[df_annotation['DataBase'].isin(DataSchema.COLUMNS_TABLE1)]
         
         
         if df_TriTryps.empty:
