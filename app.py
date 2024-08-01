@@ -20,7 +20,8 @@ from src.components import navigation_bar
 from src.components import ids
 
 
-
+#import funtions
+from src.utils.utils import determine_column_colors 
 
 
 
@@ -46,7 +47,7 @@ def main() -> None:
                meta_tags=[{'name': 'viewport',
                             'content': 'width=device-width, initial-scale=1.0'}]) #suppress_callback_exceptions=True,
 
-    app.title = 'Kinetoplastid Structural Annotation Database'
+    app.title = 'Kinetoplastid Annotation by Structural Comparison Database'
 
     # define the layout of the app
     content = page1_gene_summary_layout(app)
@@ -90,7 +91,7 @@ def main() -> None:
         
         else:
             # Returning a 404 page if path is not found
-            return '404 - Page not found'
+            return 'Wellcome to Kinetoplastid Annotation by Structural Comparison Database'
 
 
 
@@ -135,7 +136,9 @@ def main() -> None:
         [Output(ids.TABLE_ANNOTATION_TRITRYP, 'data'),
         Output(ids.TABLE_ANNOTATION_UNIPROT, 'data'),
         Output(ids.TABLE_ANNOTATION_SRBH, 'data'),
-        Output(ids.TABLE_ANNOTATION_SRBH, 'columns')],
+        Output(ids.TABLE_ANNOTATION_SRBH, 'columns'),
+        Output(ids.TABLE_ANNOTATION_SRBH, 'style_data_conditional'),
+        ],
         Input(ids.TEXT_INPUT1, 'value')
     )
     
@@ -148,7 +151,7 @@ def main() -> None:
         clusterID = data[data[DataSchema.GENEID] == value][DataSchema.CLUSTERESTRUCTURE].unique()
         
         if df_annotation.empty:
-            return df_no_data.to_dict('records'), df_no_data.to_dict('records'), df_no_data.to_dict('records'), [{'name': i, 'id': i} for i in df_no_data.columns]
+            return df_no_data.to_dict('records'), df_no_data.to_dict('records'), df_no_data.to_dict('records'), [{'name': i, 'id': i} for i in df_no_data.columns], []
         
         # Prepare the annotation DataFrame
         df_annotation = df_annotation.T.reset_index()
@@ -165,10 +168,12 @@ def main() -> None:
             df_SRBH = df_no_data
         else:
             df_SRBH = df_SRBH[DataSchema2.COLUMNS_SRBH]
+
             df_SRBH =(df_SRBH
                     .dropna(subset=[DataSchema2.FC_TMSCORE1, DataSchema2.FC_TMSCORE2])
                     .sort_values(by=[DataSchema2.FC_TMSCORE1, DataSchema2.FC_TMSCORE2], ascending=False)
                     )
+            
             df_SRBH = (df_SRBH
                        .set_index(DataSchema2.SPP)
                        .T
@@ -176,21 +181,25 @@ def main() -> None:
                        .reset_index()
                        .rename(columns={'index': 'Specie'})
                         )
+            
+            style_data_conditional = determine_column_colors(df_SRBH, DataSchema2.FC_TMSCORE1, DataSchema2.FC_TMSCORE2)
         
         
         if df_TriTryps.empty:
             df_TriTryps = df_no_data
         if df_UNIPROT.empty:
             df_UNIPROT = df_no_data
+
         
         
-        return df_TriTryps.to_dict('records'), df_UNIPROT.to_dict('records'), df_SRBH.to_dict('records'), [{'name': i, 'id': i} for i in df_SRBH.columns]
+
+        return df_TriTryps.to_dict('records'), df_UNIPROT.to_dict('records'), df_SRBH.to_dict('records'), [{'name': i, 'id': i} for i in df_SRBH.columns], style_data_conditional
 
 
 
     
     
-    app.run(debug=True)
+    app.run(debug=False)
 
 
 

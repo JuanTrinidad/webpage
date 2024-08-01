@@ -1,0 +1,29 @@
+.input-custom {
+    width: 30%;
+    height: 40px;
+    border: 1px solid #080808;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    font-size: 16px;
+}
+
+
+
+.tab-link {
+    margin-right: 10px; /* Adds spacing between tabs */
+    margin-bottom: 0; /* Removes bottom margin */
+    border: 1px solid #f9f9f9; /* Adds a border around the tab */
+    border-radius: 5px 5px 5px 5px; /* Rounds the top corners */
+    background-color: #333; /* Sets the background color */
+    color: #f9f9f9; /* Sets the text color */
+    text-decoration: none; /* Removes underline from links */
+}
+
+.tab-link:hover, .tab-link.active {
+    background-color: #f9f9f9; /* Changes background on hover/active */
+    color: #333 !important; /* Changes text color on hover/active */
+}
+
+
