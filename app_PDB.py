@@ -1,14 +1,14 @@
 
 from dash import Dash, html, dcc
 import dash_bootstrap_components as dbc
-
+from dash_bio.utils import PdbParser, create_mol3d_style
 
 from dash.dependencies import Input, Output
 import pandas as pd
 
 #import pages
 from src.pages.page0_initial_text import page0_text_layout
-from src.pages.page1_gene_summary import page1_gene_summary_layout
+from src.pages.page1_gene_summary_PDB import page1_gene_summary_layout
 from src.pages.page2_data_tables import page2_data_tables_layout
 
 
@@ -71,7 +71,7 @@ def main() -> None:
                                 )
                         ], 
                         width={'size': 10, 'offset': 1})
-                        ])
+                        ]),
                         ],
                         fluid=True)
  
@@ -139,6 +139,7 @@ def main() -> None:
         Output(ids.TABLE_ANNOTATION_SRBH, 'data'),
         Output(ids.TABLE_ANNOTATION_SRBH, 'columns'),
         Output(ids.TABLE_ANNOTATION_SRBH, 'style_data_conditional'),
+        Output(ids.DROP_DOWN_PDB, 'options')
         ],
         Input(ids.TEXT_INPUT1, 'value')
     )
@@ -152,7 +153,7 @@ def main() -> None:
         clusterID = data[data[DataSchema.GENEID] == value][DataSchema.CLUSTERESTRUCTURE].unique()
         
         if df_annotation.empty:
-            return df_no_data.to_dict('records'), df_no_data.to_dict('records'), df_no_data.to_dict('records'), [{'name': i, 'id': i} for i in df_no_data.columns], []
+            return df_no_data.to_dict('records'), df_no_data.to_dict('records'), df_no_data.to_dict('records'), [{'name': i, 'id': i} for i in df_no_data.columns], [], []
         
         # Prepare the annotation DataFrame
         df_annotation = df_annotation.T.reset_index()
@@ -167,6 +168,8 @@ def main() -> None:
         
         if df_SRBH.empty:
             df_SRBH = df_no_data
+            PDB_data = PDB_data
+            PDB_styles = []
         else:
             df_SRBH = df_SRBH[DataSchema2.COLUMNS_SRBH]
 
@@ -184,7 +187,7 @@ def main() -> None:
                         )
             
             style_data_conditional = determine_column_colors(df_SRBH, DataSchema2.FC_TMSCORE1, DataSchema2.FC_TMSCORE2)
-        
+            
         
         if df_TriTryps.empty:
             df_TriTryps = df_no_data
@@ -192,20 +195,73 @@ def main() -> None:
             df_UNIPROT = df_no_data
 
         
+
+        return df_TriTryps.to_dict('records'), df_UNIPROT.to_dict('records'), df_SRBH.to_dict('records'), [{'name': i, 'id': i} for i in df_SRBH.columns], style_data_conditional, df_SRBH.columns.drop('Specie')
+
         
-
-        return df_TriTryps.to_dict('records'), df_UNIPROT.to_dict('records'), df_SRBH.to_dict('records'), [{'name': i, 'id': i} for i in df_SRBH.columns], style_data_conditional
-
-
-
+        
+            
+        
+    @app.callback(
+        [
+        Output(ids.PDB_VIEWER, 'modelData'),
+        Output(ids.PDB_VIEWER, 'styles')
+        ],
+        [
+            Input(ids.DROP_DOWN_PDB, 'value'),
+            Input(ids.TABLE_ANNOTATION_SRBH, 'data')
+        ]
+    )
+    
+    def PDB_viewer_update(value, data):
+        print(value)
+        df_SRBH = pd.DataFrame.from_dict(data)
+        
+        
+        if df_SRBH.iloc[0,0] == 'No data' or value == None:
+            PDB_data = {
+                    "atoms": [],
+                    "bonds": []
+                    }
+            return PDB_data, []
+        
+        
+        df_SRBH = df_SRBH.set_index('Specie')
+        
+        
+        #este es siempre el mismo
+        query = df_SRBH.loc[DataSchema2.CRS_QUERY, value] 
+        #este cambia segun el dropdown
+        target = df_SRBH.loc[DataSchema2.MOSRBHtarget, value] 
+        
+        
+        ###### PDB VIEWER ######
+        PDB_path = f'/home/estructuras/webpage/FATCAT_opt_twist/opt_aligment/{target}_{query}.opt.twist.pdb'
+        parser = PdbParser(PDB_path)
+        PDB_data = parser.mol3d_data()
+        PDB_styles = create_mol3d_style(
+                                    PDB_data['atoms'], 
+                                    visualization_type='cartoon', 
+                                    color_element='chain',
+                                )
+        
+        return PDB_data, PDB_styles
     
     
-    app.run(debug=False)
-
-
-
-
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+        
+        
+    app.run(debug=True, port=8888)
+  
+        
 
 
 

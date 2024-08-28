@@ -11,3 +11,6 @@ TABLE_ANNOTATION_UNIPROT = 'annotation-UNIPROT'
 TABLE_ANNOTATION_SRBH = 'annotation-srbh'
 
 NAVIGATION_BAR = 'navigation_bar'
+
+DROP_DOWN_PDB = 'drop_down_pdb'
+PDB_VIEWER = 'pdb_viewer'
